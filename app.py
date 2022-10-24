@@ -163,6 +163,7 @@ def users_show(user_id):
 @ app.route('/users/<int:user_id>/following')
 def show_following(user_id):
     """Show list of people this user is following."""
+    session['url'] = url_for('users_following', user_id=user_id)
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -175,6 +176,7 @@ def show_following(user_id):
 @ app.route('/users/<int:user_id>/followers')
 def users_followers(user_id):
     """Show list of followers of this user."""
+    session['url'] = url_for('users_followers', user_id=user_id)
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -187,6 +189,7 @@ def users_followers(user_id):
 @ app.route('/users/<int:user_id>/likes')
 def users_likes(user_id):
     """Show list of users liked messages."""
+    session['url'] = url_for('users_likes', user_id=user_id)
 
     if not g.user:
         flash("Access unauthorized.", "danger")
