@@ -32,20 +32,16 @@ class Likes(db.Model):
 
     __tablename__ = 'likes'
 
-    id = db.Column(
-        db.Integer,
-        primary_key=True
-    )
-
     user_id = db.Column(
         db.Integer,
-        db.ForeignKey('users.id', ondelete='cascade')
+        db.ForeignKey('users.id', ondelete='cascade'),
+        primary_key=True
     )
 
     message_id = db.Column(
         db.Integer,
         db.ForeignKey('messages.id', ondelete='cascade'),
-        unique=True
+        primary_key=True
     )
 
 
@@ -110,7 +106,7 @@ class User(db.Model):
         secondaryjoin=(Follows.user_being_followed_id == id)
     )
 
-    likes = db.relationship(
+    liked_messages = db.relationship(
         'Message',
         secondary="likes"
     )
