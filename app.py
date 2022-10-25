@@ -155,7 +155,9 @@ def users_show(user_id):
                 .limit(100)
                 .all())
 
-    likes = [msg.id for msg in g.user.liked_messages]
+    likes = []
+    if g.user:
+        likes = [msg.id for msg in g.user.liked_messages]
 
     return render_template('users/show.html', user=user, messages=messages, likes=likes)
 
@@ -163,11 +165,11 @@ def users_show(user_id):
 @ app.route('/users/<int:user_id>/following')
 def show_following(user_id):
     """Show list of people this user is following."""
-    session['url'] = url_for('users_following', user_id=user_id)
-
     if not g.user:
         flash("Access unauthorized.", "danger")
-        return redirect("/")
+        return redirect(session.get('url', '/'))
+
+    session['url'] = url_for('users_following', user_id=user_id)
 
     user = User.query.get_or_404(user_id)
     return render_template('users/following.html', user=user)
@@ -176,11 +178,11 @@ def show_following(user_id):
 @ app.route('/users/<int:user_id>/followers')
 def users_followers(user_id):
     """Show list of followers of this user."""
-    session['url'] = url_for('users_followers', user_id=user_id)
-
     if not g.user:
         flash("Access unauthorized.", "danger")
-        return redirect("/")
+        return redirect(session.get('url', '/'))
+
+    session['url'] = url_for('users_followers', user_id=user_id)
 
     user = User.query.get_or_404(user_id)
     return render_template('users/followers.html', user=user)
@@ -189,11 +191,11 @@ def users_followers(user_id):
 @ app.route('/users/<int:user_id>/likes')
 def users_likes(user_id):
     """Show list of users liked messages."""
-    session['url'] = url_for('users_likes', user_id=user_id)
-
     if not g.user:
         flash("Access unauthorized.", "danger")
-        return redirect("/")
+        return redirect(session.get('url', '/'))
+
+    session['url'] = url_for('users_likes', user_id=user_id)
 
     user = User.query.get_or_404(user_id)
 
@@ -203,10 +205,9 @@ def users_likes(user_id):
 @ app.route('/users/follow/<int:follow_id>', methods=['POST'])
 def add_follow(follow_id):
     """Add a follow for the currently-logged-in user."""
-
     if not g.user:
         flash("Access unauthorized.", "danger")
-        return redirect("/")
+        return redirect(session.get('url', '/'))
 
     followed_user = User.query.get_or_404(follow_id)
     g.user.following.append(followed_user)
@@ -218,10 +219,9 @@ def add_follow(follow_id):
 @ app.route('/users/stop-following/<int:follow_id>', methods=['POST'])
 def stop_following(follow_id):
     """Have currently-logged-in-user stop following this user."""
-
     if not g.user:
         flash("Access unauthorized.", "danger")
-        return redirect("/")
+        return redirect(session.get('url', '/'))
 
     followed_user = User.query.get(follow_id)
     g.user.following.remove(followed_user)
@@ -233,10 +233,9 @@ def stop_following(follow_id):
 @ app.route('/users/profile', methods=["GET", "POST"])
 def profile():
     """Update profile for current user."""
-
     if not g.user:
         flash("Access unauthorized.", "danger")
-        return redirect("/login")
+        return redirect(session.get('url', '/login'))
 
     form = ProfileEditForm(obj=g.user)
 
@@ -288,7 +287,7 @@ def messages_add():
 
     if not g.user:
         flash("Access unauthorized.", "danger")
-        return redirect("/")
+        return redirect(session.get('url', '/'))
 
     form = MessageForm()
 
@@ -317,7 +316,7 @@ def messages_destroy(message_id):
 
     if not g.user:
         flash("Access unauthorized.", "danger")
-        return redirect("/")
+        return redirect(session.get('url', '/'))
 
     msg = Message.query.get(message_id)
     db.session.delete(msg)
@@ -332,6 +331,10 @@ def messages_destroy(message_id):
 
 @app.route('/users/add_like/<int:message_id>', methods=['POST'])
 def toggle_like(message_id):
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect(session.get('url', '/'))
 
     like = (Likes
             .query
