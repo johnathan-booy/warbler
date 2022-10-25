@@ -4,11 +4,7 @@
 #
 #    python -m unittest test_user_model.py
 
-from email.mime import image
-from lib2to3.pytree import type_repr
-from multiprocessing.sharedctypes import Value
 import os
-from typing import Type
 from unittest import TestCase
 from models import db, User, Message, Follows
 from sqlalchemy.exc import IntegrityError
